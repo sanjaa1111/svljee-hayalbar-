@@ -1,0 +1,1056 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GEONET PRO — Геодезийн сүлжээний бүрэн боловсруулалт</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#172033;font-family:Arial,"Segoe UI",sans-serif}
+header{background:linear-gradient(135deg,#0b3b91,#1769d1);color:white;padding:22px}
+header h1{margin:0 0 5px;font-size:25px}header p{margin:0;font-size:13px}
+.wrap{max-width:1500px;margin:18px auto;padding:0 14px}.card{background:#fff;border:1px solid #d7e0ea;border-radius:15px;padding:17px;margin-bottom:15px;box-shadow:0 3px 12px #10182812}
+h2{margin:0 0 13px;font-size:20px}h3{font-size:16px;margin:16px 0 9px}label{display:block;font-size:12px;font-weight:700;margin:8px 0 4px;color:#344054}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+input,select{width:100%;height:40px;border:1px solid #c7d3e1;border-radius:8px;padding:0 10px;font-size:14px;background:white}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}.primary{background:#2864df;color:white}.secondary{background:#e7edf5}.danger{background:#dc2626;color:white}
+.info,.formula,.status{border-radius:9px;padding:11px 13px;font-size:12px;line-height:1.65;margin:10px 0}.info{background:#fff9e8;border:1px solid #f1c45d}.formula{background:#f7f9fc;border-left:4px solid #2864df}.status{background:#f7f9fc}
+.table-wrap{overflow:auto;border:1px solid #d5dde8;border-radius:10px}table{width:100%;border-collapse:collapse;min-width:720px}th,td{border-bottom:1px solid #dfe5ec;padding:8px;text-align:center;font-size:13px}th{background:#f7f9fc;font-size:12px;white-space:nowrap}td input{height:35px;min-width:65px}.auto{background:#f2f6ff;color:#175cd3;font-weight:bold}
+.measure-input{background:#fff!important;color:#101828!important;font-weight:500;cursor:text}
+.measure-input:focus{border:2px solid #2864df;outline:none;background:#f8fbff!important}
+.distance-input{min-width:90px}.height-input{min-width:90px}
+.metricgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{border:1px solid #d7e0ea;border-radius:10px;padding:11px}.metric small{display:block;color:#667085}.metric strong{display:block;font-size:18px;margin-top:4px}.sub{font-size:12px;margin-top:4px}.ok{color:#079455}.bad{color:#d92d20}.warn{color:#dc6803}
+#canvas{display:block;width:100%;height:650px;border:1px solid #d7dee8;border-radius:10px;background:white}.tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}.tools button{padding:8px 10px;background:#eef2f6}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.metricgrid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.metricgrid{grid-template-columns:1fr}}
+
+.fixed-card{margin-top:12px;border:1px solid #c9d8f2;border-radius:12px;padding:14px;background:#f8fbff}.fixed-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.fixed-grid .wide{grid-column:span 2}.fixed-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.fixed-point{background:#f59e0b!important;border:2px solid #b45309!important}.fixed-table{margin-top:10px}.fixed-table table{min-width:900px}.visibility-btn{min-width:72px}.visibility-on{background:#ecfdf3!important;color:#027a48!important;border-color:#6ce9a6!important}.visibility-off{background:#f2f4f7!important;color:#667085!important;border-color:#d0d5dd!important}.fixed-note{font-size:12px;color:#475467;line-height:1.6}
+@media(max-width:900px){.fixed-grid{grid-template-columns:1fr 1fr}}
+@media print{header,.no-print{display:none!important}.card{box-shadow:none}#canvas{height:550px}}
+
+.point-picker{margin-top:12px;border:1px solid #d7e0ea;border-radius:10px;padding:12px;background:#fbfcfe}.picker-title{font-weight:700;font-size:14px;margin-bottom:7px}.neighbor-btn{background:#eef4ff;border:1px solid #bfd2ff;color:#175cd3}.neighbor-btn:hover{background:#dce9ff}.selected-point{outline:3px solid #f59e0b!important}.excel-upload-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}.excel-upload-row input{height:42px;padding:8px 10px}@media(max-width:900px){.excel-upload-row{grid-template-columns:1fr}}
+.fixed-excel-card{margin:12px 0;border:1px dashed #98a2b3;border-radius:10px;padding:12px;background:#fff}.fixed-excel-card .info{margin-top:8px}.canvas-hint{font-size:12px;color:#667085;margin:6px 0}</style>
+</head>
+<body>
+<header>
+<h1>GEONET PRO — Геодезийн сүлжээний бүрэн боловсруулалт</h1>
+<p>Хэмжилт → өнцгийн хаалт → өнцгийн засвар → азимут → координатын өсөлт → шугаман хаалт → Bowditch → X,Y,H → зураг</p>
+</header>
+<div class="wrap">
+
+<div class="card">
+<h2>① Сүлжээний тохиргоо</h2>
+<div class="grid2">
+<div><label>Сүлжээний төрөл</label><select id="type"><option value="closed">Битүү сэлгэц / Traverse</option><option value="open">Задгай сэлгэц / Traverse</option></select></div>
+<div><label>Цэгийн тоо n</label><input id="n" type="number" min="3" max="100" value="5"></div>
+</div>
+<div class="grid3">
+<div><label>Эхний X / Northing (м)</label><input id="x0" class="measure-input" inputmode="decimal" placeholder="5000.000"></div>
+<div><label>Эхний Y / Easting (м)</label><input id="y0" class="measure-input" inputmode="decimal" placeholder="3000.000"></div>
+<div><label>Эхний H / Өндөр (м)</label><input id="h0" class="measure-input" inputmode="decimal" placeholder="100.000"></div>
+</div>
+<div id="openEndBox" class="grid3" style="display:none;margin-top:10px">
+<div><label>Төгсгөлийн X / Northing (м)</label><input id="xe" class="measure-input" inputmode="decimal" placeholder="5450.000"></div>
+<div><label>Төгсгөлийн Y / Easting (м)</label><input id="ye" class="measure-input" inputmode="decimal" placeholder="3250.000"></div>
+<div><label>Төгсгөлийн H / Өндөр (м)</label><input id="he" class="measure-input" inputmode="decimal" placeholder="105.000"></div>
+</div>
+<div id="openEndInfo" class="info" style="display:none"><b>Задгай сэлгэц:</b> эхлэл ба төгсгөлийн цэгийн X, Y, H мэдэгдэж байна. Төгсгөлийн цэгийн координаттай харьцуулж <b>fX, fY, fH</b>-г олно. Хэрэв төгсгөлийн азимут мөн мэдэгдэж байвал нэмэлтээр өнцгийн/азимутын хаалтыг шалгаж болно.</div>
+<div class="grid2">
+<div><label>Эхний талын азимут α₁ DMS</label><div class="grid3"><input id="azd" class="measure-input" inputmode="decimal" placeholder="35"><input id="azm" class="measure-input" inputmode="decimal" placeholder="20"><input id="azs" class="measure-input" inputmode="decimal" placeholder="00.00"></div></div>
+<div><label>Дотоод өнцөг хэмжсэн чиглэл</label><select id="side"><option value="right">Баруун өнцөг (Right)</option><option value="left">Зүүн өнцөг (Left)</option></select></div>
+</div>
+<div id="endAzBox" class="grid2" style="display:none;margin-top:10px">
+<div><label>Төгсгөлийн талын мэдэгдэж буй азимут α<sub>төгс</sub> (задгай сэлгэцэд заавал)</label><div class="grid3"><input id="eazd" class="measure-input" inputmode="decimal" placeholder="—"><input id="eazm" class="measure-input" inputmode="decimal" placeholder="—"><input id="eazs" class="measure-input" inputmode="decimal" placeholder="—"></div></div>
+<div class="info" style="margin:0"><b>Анхаарах:</b> төгсгөлийн азимут байхгүй бол задгай сэлгэцы өнцгийн хаалтыг (fβ) битүү сэлгэц шиг (n−2)180°-оор бодохгүй.</div>
+</div>
+</div>
+<div class="grid2">
+<div><label>Өнцөг хэмжих багажийн тооллын нарийвчлал t (″)</label><input id="tol" type="number" step=".1" value="30"><div class="sub">fβ<sub>зөвш</sub> = ±1.5t√n</div></div>
+<div><label>Харьцангуй хаалтын шаардлага 1:N</label><input id="req" type="number" value="10000"></div>
+</div>
+<div class="btns no-print"><button class="primary" onclick="build()">Сүлжээ үүсгэх</button><button class="secondary" onclick="example()">Жишээ</button><button class="danger" onclick="clearAll()">Цэвэрлэх</button></div>
+</div>
+
+<div class="card">
+<h2>② Хэмжсэн дотоод өнцөг, зай, өндөржилт</h2>
+<div class="info"><b>Бүх хэмжилтийн утгыг гараар оруулна.</b> Дотоод өнцгийг 3 тусдаа нүдэнд: <b>108 | 20 | 15.00</b> = 108°20′15.00″. <b>D ба ΔH нь цэг (.) болон хасах тэмдэг (-)-ийг гараас шууд оруулна.</b> Жишээ: <b>125.235</b>, <b>-0.825</b>.</div>
+<div class="table-wrap"><table><thead><tr><th>Тал / өнцөг хэмжих чиглэл</th><th>Өнцөг °</th><th>′</th><th>″</th><th>D (м)</th><th>ΔH (м)</th></tr></thead><tbody id="meas"></tbody></table></div>
+<div id="openLastLineBox" style="display:none;margin-top:10px">
+  <div class="info"><b>Задгай сэлгэцийн сүүлийн тал:</b> Төгсгөлийн талд өнцөг хэмжихгүй. Зөвхөн зай <b>D</b> болон өндөржилт <b>ΔH</b>-ийг оруулна.</div>
+  <div class="table-wrap"><table><thead><tr><th>Сүүлийн тал</th><th>D (м)</th><th>ΔH (м)</th></tr></thead><tbody id="openLastLine"></tbody></table></div>
+</div>
+<div class="btns no-print" style="margin-top:14px">
+  <button class="primary" id="calcBtn" onclick="calc()">▶ Тооцоолол эхлүүлэх</button>
+  <button class="secondary" onclick="fillMissingZero()">Хоосон утгыг 0 болгох</button>
+</div>
+<div id="inputStatus" class="status">① Сүлжээ үүсгэсний дараа хэмжилтийн бүх утгыг гараар оруулаад <b>“Тооцоолол эхлүүлэх”</b> товчийг дарна.</div>
+</div>
+
+<div class="card no-print">
+<h2>②-A 📥 Excel оруулах</h2>
+<div class="info"><b>Excel файл яг 5 баганатай байна:</b><br>
+1-р багана = <b>Хэвтээ өнцөг — градус (°)</b><br>
+2-р багана = <b>Хэвтээ өнцөг — минут (′)</b><br>
+3-р багана = <b>Хэвтээ өнцөг — секунд (″)</b><br>
+4-р багана = <b>Хэвтээ зай D (м)</b><br>
+5-р багана = <b>Өндөржилтийн өөрчлөлт ΔH (м)</b><br>
+Excel файлыг сонгоход <b>автоматаар импортолж, хэмжилтийн хүснэгтэд харуулж, тооцоолол болон сүлжээний зургийг шинэчилнэ.</b></div>
+<div class="excel-upload-row">
+  <div><label>Excel / XLSX / XLS / CSV файл</label><input id="excelFile" type="file" accept=".xlsx,.csv,.txt"></div>
+  <div class="info" id="excelStatus" style="margin:0">Файлаа сонгоно уу. Сонгосны дараа автоматаар уншина.</div>
+</div>
+<div class="btns"><button class="secondary" type="button" onclick="downloadExcelTemplate()">⬇ 5 баганатай Excel/CSV загвар авах</button></div>
+</div>
+
+<div class="card">
+<h2>③ Өнцгийн хаалтын алдаа → өнцгийн засвар</h2>
+<div class="formula">
+<span id="angleFormula">Битүү сэлгэц: Σβ₀ = 180°(n−2)<br>Задгай сэлгэц: Σβ₀ = α<sub>төгс</sub> − α<sub>эх</sub> + 180°·n<br><b>fβ = Σβ<sub>хэмжсэн</sub> − Σβ₀</b> (360°-ийн normalize хийхгүй)<br>fβ<sub>зөвш</sub> = ±1.5t√n<br>Vβ = −fβ/n, энд n = хэмжсэн өнцгийн тоо<br>β′<sub>i</sub> = β<sub>i</sub> + Vβ</span>
+</div>
+<div class="metricgrid">
+<div class="metric"><small>Σ хэмжсэн</small><strong id="sumB">—</strong></div>
+<div class="metric"><small>Σ онолын</small><strong id="theory">—</strong></div>
+<div class="metric"><small>fβ</small><strong id="fb">—</strong></div>
+<div class="metric"><small>vβ</small><strong id="vb">—</strong></div>
+</div>
+<div id="decision" class="status">Хэмжилт оруулна уу.</div>
+<div class="table-wrap"><table><thead><tr><th>Цэг</th><th>Хэмжсэн өнцөг</th><th>Засвар</th><th><b>Засварласан өнцөг</b></th></tr></thead><tbody id="angletab"></tbody></table></div>
+</div>
+
+<div class="card">
+<h2>④ Азимутын тооцоо</h2>
+<div class="formula"><b>Эхний тал:</b> α₁ = P₁→P₂-ийн өгөгдсөн азимут.<br><b>Баруун өнцөг:</b> α<sub>i+1</sub> = α<sub>i</sub> + 180° − β<sub>i+1</sub><br><b>Зүүн өнцөг:</b> α<sub>i+1</sub> = α<sub>i</sub> − 180° + β<sub>i+1</sub><br><b>Чухал:</b> α₁-ийг бодохдоо β₁ ашиглахгүй; α₂-оос эхлэн тухайн оройн β ашиглана. Үр дүнг 0°–360° болгон нормчилно.</div>
+<div class="table-wrap"><table><thead><tr><th>Тал</th><th>Азимут</th></tr></thead><tbody id="aztab"></tbody></table></div>
+</div>
+
+<div class="card">
+<h2>⑤ Координатын өсөлт</h2>
+<div class="formula"><b>ΔX = D cos α</b><br><b>ΔY = D sin α</b><br>X = Northing, Y = Easting.</div>
+<div class="table-wrap"><table><thead><tr><th>Тал</th><th>D (м)</th><th>Азимут</th><th>ΔX (м)</th><th>ΔY (м)</th><th>ΔH (м)</th></tr></thead><tbody id="inctab"></tbody></table></div>
+<p><b>fX = ΣΔX = <span id="fx">—</span> м</b> &nbsp;&nbsp; <b>fY = ΣΔY = <span id="fy">—</span> м</b> &nbsp;&nbsp; <b>fH = ΣΔH = <span id="fh">—</span> м</b></p>
+</div>
+
+<div class="card">
+<h2>⑥ Солбицлын өсөлтийн алдаа → шугаман хаалт ба харьцангуй алдаа</h2>
+<div class="formula"><span id="closureFormula"><b>f<sub>s</sub> = √(f<sub>x</sub>² + f<sub>y</sub>²)</b><br><b>f<sub>s</sub>/L = 1/N</b>, энд <b>N = L/f<sub>s</sub></b><br>Теодолит: 1-р зэрэг ≤1/2000; 2-р зэрэг ≤1/1000<br>Тахеометр: 1-р зэрэг ≤1/1500; 2-р зэрэг ≤1/700</span></div>
+<div class="metricgrid">
+<div class="metric"><small>ΣD</small><strong id="sd">—</strong></div><div class="metric"><small>fX</small><strong id="fx2">—</strong></div>
+<div class="metric"><small>fY</small><strong id="fy2">—</strong></div><div class="metric"><small>f<sub>s</sub></small><strong id="fs">—</strong></div>
+</div>
+<div class="metric" style="margin-top:10px"><small>Харьцангуй хаалтын алдаа</small><strong id="rel">—</strong><div id="relstat" class="sub">—</div></div>
+</div>
+
+<div class="card" id="openClosureCard" style="display:none">
+<h2>⑦ Задгай сэлгэцы төгсгөлийн хаалтын шалгалт</h2>
+<div class="formula">
+X<sub>n</sub><sup>calc</sup> = X<sub>1</sub> + ΣΔX<sub>i</sub>; &nbsp; Y<sub>n</sub><sup>calc</sup> = Y<sub>1</sub> + ΣΔY<sub>i</sub>; &nbsp; H<sub>n</sub><sup>calc</sup> = H<sub>1</sub> + ΣΔH<sub>i</sub><br>
+fX = X<sub>n</sub><sup>calc</sup> − X<sub>n</sub><sup>known</sup><br>
+fY = Y<sub>n</sub><sup>calc</sup> − Y<sub>n</sub><sup>known</sup><br>
+fH = H<sub>n</sub><sup>calc</sup> − H<sub>n</sub><sup>known</sup>
+</div>
+<div class="metricgrid"><div class="metric"><small>X төгсгөл тооцоолсон</small><strong id="xcalcEnd">—</strong></div><div class="metric"><small>Y төгсгөл тооцоолсон</small><strong id="ycalcEnd">—</strong></div><div class="metric"><small>H төгсгөл тооцоолсон</small><strong id="hcalcEnd">—</strong></div><div class="metric"><small>fH</small><strong id="fhOpen">—</strong></div></div>
+<div id="openClosureStatus" class="status">Задгай сэлгэцы төгсгөлийн координатыг оруулна уу.</div>
+</div>
+
+<div class="card">
+<h2>⑧ Солбицлын өсөлтийн засвар ба өндрийн засвар</h2>
+<div class="formula">
+<span id="adjustFormula">Битүү сэлгэц: v<sub>ΔXᵢ</sub> = −fX × Dᵢ/ΣD<br>v<sub>ΔYᵢ</sub> = −fY × Dᵢ/ΣD<br>v<sub>ΔHᵢ</sub> = −fH × Dᵢ/ΣD<br><br>Задгай сэлгэц (эхний P1→P2 ба сүүлийн P(n−1)→Pn тал тогтмол):<br>зөвхөн дотоод талууд P2→P3, …, P(n−2)→P(n−1)-д засвар өгнө.<br>ΣD<sub>дотоод</sub> = дотоод талуудын уртын нийлбэр<br>v<sub>ΔXᵢ</sub> = fX × Dᵢ/ΣD<sub>дотоод</sub><br>v<sub>ΔYᵢ</sub> = fY × Dᵢ/ΣD<sub>дотоод</sub><br>v<sub>ΔHᵢ</sub> = fH × Dᵢ/ΣD<sub>дотоод</sub><br>эхний ба сүүлийн талын vX=vY=vH=0<br><br></span>ΔX<sub>i</sub><sup>зас</sup> = ΔX<sub>i</sub> + v<sub>ΔXᵢ</sub><br>
+ΔY<sub>i</sub><sup>зас</sup> = ΔY<sub>i</sub> + v<sub>ΔYᵢ</sub><br>
+ΔH<sub>i</sub><sup>зас</sup> = ΔH<sub>i</sub> + v<sub>ΔHᵢ</sub>
+</div>
+<div class="table-wrap"><table><thead><tr><th>Тал</th><th>vX (м)</th><th>vY (м)</th><th>vH (м)</th><th>Засварласан ΔX</th><th>Засварласан ΔY</th><th>Засварласан ΔH</th></tr></thead><tbody id="bow"></tbody></table></div>
+</div>
+
+<div class="card">
+<h2>⑨ Эцсийн координат X, Y, H</h2>
+<div class="formula">X<sub>i+1</sub>=X<sub>i</sub>+ΔX<sub>зас</sub>; &nbsp; Y<sub>i+1</sub>=Y<sub>i</sub>+ΔY<sub>зас</sub>; &nbsp; H<sub>i+1</sub>=H<sub>i</sub>+ΔH<sub>зас</sub></div>
+<div class="table-wrap"><table><thead><tr><th>Цэг</th><th>X (м)</th><th>Y (м)</th><th>H (м)</th></tr></thead><tbody id="coord"></tbody></table></div>
+</div>
+
+<div class="card">
+<h2>⑩ Эцсийн сүлжээний шугамын хүснэгт</h2>
+<div class="table-wrap"><table><thead><tr><th>Шугам</th><th>Азимут</th><th>D m</th><th>ΔX m</th><th>ΔY m</th><th>ΔH m</th></tr></thead><tbody id="final"></tbody></table></div>
+</div>
+
+<div class="card">
+<h2>⑪ Сүлжээний зураг</h2>
+<div class="tools no-print"><button onclick="fit()">⟳ Багтаах</button><button onclick="zoom(1.25)">＋</button><button onclick="zoom(.8)">－</button><button onclick="azToggle()">α Азимут</button><button onclick="coToggle()">X,Y,H</button><button onclick="csv()">CSV</button><button onclick="print()">Хэвлэх / PDF</button></div>
+<canvas id="canvas"></canvas>
+<div class="canvas-hint">🖱 Mouse wheel / trackpad: <b>сум заасан яг тэр хэсэгт</b> zoom. &nbsp; • &nbsp; 🖐 Зүүн товч дарж чирэх: зураг хөдөлгөнө. &nbsp; • &nbsp; ⟳ Багтаах: бүх цэгийг дахин нэг дор харуулна.</div>
+<div class="surface-card no-print">
+  <div class="picker-title">🏔️ Гадаргын сүлжээ ба бүхэл метрийн контур</div>
+  <div class="fixed-note">Фикст цэгүүдийн X, Y, H-ийг ашиглан ойролцоох цэгүүдийг <b>Delaunay гурвалжингаар</b> холбоно. Дараа нь гурвалжин бүр дээр шугаман интерполяци хийж бүхэл метрийн өндрийн контур шугам байгуулна.</div>
+  <div class="surface-controls">
+    <div><label>Контурын алхам (м)</label><input id="contourInterval" type="number" min="0.1" step="0.1" value="1"></div>
+    <label class="surface-check"><input id="showMesh" type="checkbox"> Ойр цэгийн сүлжээ</label>
+    <label class="surface-check"><input id="showContours" type="checkbox"> Контур шугам</label>
+    <label class="surface-check"><input id="showContourLabels" type="checkbox" checked> Өндрийн утга</label>
+  </div>
+  <div class="btns"><button class="primary" type="button" onclick="buildSurface()">🏔️ Гадаргыг тооцоолох</button><button class="secondary" type="button" onclick="clearSurface()">✕ Контурыг арилгах</button></div>
+  <div id="surfaceStatus" class="surface-status">Фикст цэгүүдийг оруулсны дараа “Гадаргыг тооцоолох” товч дарна уу.</div>
+</div>
+<div id="pointPicker" class="point-picker no-print">
+  <div class="picker-title">📍 Зураг дээрээс цэг сонгох</div>
+  <div id="pickerStatus" class="status">Зураг дээрх хүссэн цэг дээр шууд дарна уу. Сонгосон цэгийн координат энд харагдана.</div>
+  <div id="azimuthResult" class="formula" style="display:none"></div>
+
+  <div class="fixed-card">
+    <div class="picker-title">📌 Фикст цэг тодорхойлж зурагт нэмэх</div>
+    <div class="fixed-note">Эхлээд <b>багаж байрласан цэг</b>-ээ, дараа нь <b>арын / лавлах цэг</b>-ээ сонгоно. Дараа нь баруун/зүүн өнцгийн чиглэлээ сонгоод Excel файлыг оруулахад бүх мөрийн фикст цэгийг нэг дор бодож зураг дээр нэмнэ.</div>
+
+    <div class="fixed-grid">
+      <div><label>1. Багаж байрласан цэг</label><select id="fpStation"></select></div>
+      <div><label>2. Арын / лавлах цэг</label><select id="fpBack"></select></div>
+      <div class="wide"><label>3. Өнцгийн чиглэл</label><select id="fpDir"><option value="right">Баруун тийш эргүүлсэн өнцөг</option><option value="left">Зүүн тийш эргүүлсэн өнцөг</option></select></div>
+    </div>
+
+    <div class="fixed-excel-card">
+      <div class="picker-title">📥 4. Олон фикст цэгийг Excel-ээр нэг дор оруулах — OFFLINE</div>
+      <div class="fixed-note">Сонгосон багажийн цэг болон арын/лавлах цэгийг бүх Excel мөрөнд ашиглана. <b>.xlsx файлыг интернетгүйгээр</b> уншина. Файл сонгосны дараа шууд автоматаар бодож, бүх цэгийг зураг дээр гаргана.</div>
+      <div class="info"><b>Excel-ийн 6 багана дарааллаар:</b><br>1. Цэгийн нэр &nbsp; | &nbsp; 2. Хэвтээ зай D (м) &nbsp; | &nbsp; 3. Өндөржилтийн өөрчлөлт ΔH (м) &nbsp; | &nbsp; 4. Хэвтээ өнцөг — градус &nbsp; | &nbsp; 5. Хэвтээ өнцөг — минут &nbsp; | &nbsp; 6. Хэвтээ өнцөг — секунд</div>
+      <div class="excel-upload-row">
+        <div><label>Excel файл (.xlsx / .csv)</label><input id="fixedExcelFile" type="file" accept=".xlsx,.csv,.txt"></div>
+        <div class="info" id="fixedExcelStatus" style="margin:0">Файл сонгосны дараа автоматаар импортлогдоно.</div>
+      </div>
+      <div class="btns"><button class="secondary" type="button" onclick="downloadFixedExcelTemplate()">⬇ 6 баганатай Excel загвар</button><button class="secondary" type="button" onclick="setAllFixedVisibility(true)">👁 Бүгдийг асаах</button><button class="secondary" type="button" onclick="setAllFixedVisibility(false)">🚫 Бүгдийг унтраах</button><button class="secondary" type="button" onclick="clearFixedPoints()">🗑 Бүх фикст цэгийг цэвэрлэх</button></div>
+    </div>
+
+    <details style="margin-top:10px">
+      <summary style="cursor:pointer;font-weight:700">✍ Нэг цэгийг гараар нэмэх (сонголттой)</summary>
+      <div class="fixed-grid" style="margin-top:10px">
+        <div><label>Шинэ цэгийн нэр</label><input id="fpName" class="measure-input" placeholder="P6"></div>
+        <div><label>Хэвтээ зай D (м)</label><input id="fpD" class="measure-input" inputmode="decimal" placeholder="100.000"></div>
+        <div><label>Хэвтээ өнцөг — градус</label><input id="fpDeg" class="measure-input" inputmode="decimal" placeholder="90"></div>
+        <div><label>Хэвтээ өнцөг — минут</label><input id="fpMin" class="measure-input" inputmode="decimal" placeholder="0"></div>
+        <div><label>Хэвтээ өнцөг — секунд</label><input id="fpSec" class="measure-input" inputmode="decimal" placeholder="0"></div>
+        <div><label>Өндөржилтийн өөрчлөлт ΔH (м)</label><input id="fpDH" class="measure-input" inputmode="decimal" placeholder="0.000"></div>
+      </div>
+      <div class="fixed-actions">
+        <button class="primary" type="button" onclick="addFixedPoint()">＋ Нэг фикст цэгийг бодож зурагт нэмэх</button>
+        <button class="secondary" type="button" onclick="clearFixedInputs()">Цэвэрлэх</button>
+      </div>
+    </details>
+    <div id="fixedStatus" class="status">Багажийн цэг, арын цэг, өнцөг, D, ΔH-ээ оруулна уу.</div>
+    <div class="fixed-table table-wrap"><table><thead><tr><th>Шинэ цэг</th><th>Багажийн цэг</th><th>Арын цэг</th><th>Азимут</th><th>D (м)</th><th>ΔH (м)</th><th>X (м)</th><th>Y (м)</th><th>H (м)</th><th>Харагдац</th><th></th></tr></thead><tbody id="fixedRows"></tbody></table></div>
+  </div>
+</div>
+</div>
+</div>
+
+<script>
+/* Offline XLSX/CSV reader: no internet/CDN required. */
+async function readLocalSpreadsheet(file){
+  const name=(file.name||'').toLowerCase();
+  const buf=await file.arrayBuffer();
+  if(name.endsWith('.csv')||name.endsWith('.txt')) return parseCSV(new TextDecoder('utf-8').decode(buf));
+  if(name.endsWith('.xlsx')) return await parseXLSX(buf);
+  if(name.endsWith('.xls')) throw new Error('Хуучин .xls формат дэмжигдэхгүй. Excel файлаас Save As → .xlsx хийж оруулна уу.');
+  throw new Error('Зөвхөн .xlsx, .csv, .txt файл оруулна уу.');
+}
+function parseCSV(text){
+  text=text.replace(/^\uFEFF/,'');
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){
+      if(ch==='"'){ if(text[i+1]==='"'){cell+='"'; i++;} else q=false; }
+      else cell+=ch;
+    }else{
+      if(ch==='"') q=true;
+      else if(ch===','){row.push(cell);cell='';}
+      else if(ch==='\n'){row.push(cell);rows.push(row);row=[];cell='';}
+      else if(ch==='\r'){ if(text[i+1]==='\n') i++; row.push(cell);rows.push(row);row=[];cell=''; }
+      else cell+=ch;
+    }
+  }
+  if(cell!==''||row.length){row.push(cell);rows.push(row);}
+  return rows;
+}
+function u16(v,o){return v[o]|(v[o+1]<<8)}
+function u32(v,o){return (v[o]|(v[o+1]<<8)|(v[o+2]<<16)|(v[o+3]<<24))>>>0}
+function utf8(bytes){return new TextDecoder('utf-8').decode(bytes)}
+async function unzipEntry(buf, entry){
+  const v=new Uint8Array(buf);
+  const lo=entry.localOffset;
+  if(u32(v,lo)!==0x04034b50) throw new Error('ZIP local header буруу байна.');
+  const fn=u16(v,lo+26), ex=u16(v,lo+28);
+  const start=lo+30+fn+ex;
+  const comp=v.slice(start,start+entry.compSize);
+  if(entry.method===0) return comp;
+  if(entry.method!==8) throw new Error('XLSX-ийн ZIP compression дэмжигдэхгүй төрөл байна.');
+  if(typeof DecompressionStream==='undefined') throw new Error('Таны browser ZIP/Deflate задлах DecompressionStream дэмждэггүй. Chrome/Edge-ийн шинэ хувилбар ашиглана уу.');
+  const ds=new DecompressionStream('deflate-raw');
+  const stream=new Blob([comp]).stream().pipeThrough(ds);
+  const ab=await new Response(stream).arrayBuffer();
+  return new Uint8Array(ab);
+}
+function zipEntries(buf){
+  const v=new Uint8Array(buf), out=[];
+  let eocd=-1;
+  for(let i=v.length-22;i>=Math.max(0,v.length-65557);i--){ if(u32(v,i)===0x06054b50){eocd=i;break;} }
+  if(eocd<0) throw new Error('XLSX ZIP-ийн төгсгөлийн мэдээлэл олдсонгүй.');
+  const count=u16(v,eocd+10), cdSize=u32(v,eocd+12), cdOff=u32(v,eocd+16);
+  let p=cdOff;
+  for(let i=0;i<count && p<v.length;i++){
+    if(u32(v,p)!==0x02014b50) break;
+    const method=u16(v,p+10), compSize=u32(v,p+20), uncomp=u32(v,p+24);
+    const fn=u16(v,p+28), ex=u16(v,p+30), cm=u16(v,p+32), localOffset=u32(v,p+42);
+    const name=utf8(v.slice(p+46,p+46+fn));
+    out.push({name,method,compSize,uncomp,localOffset});
+    p+=46+fn+ex+cm;
+  }
+  return out;
+}
+function colIndex(ref){
+  const m=String(ref).match(/^([A-Z]+)\d+$/i); if(!m)return -1;
+  let n=0; for(const c of m[1].toUpperCase()) n=n*26+(c.charCodeAt(0)-64); return n-1;
+}
+function xmlText(el){
+  const t=el.querySelector('t'); return t?t.textContent:'';
+}
+async function parseXLSX(buf){
+  const ents=zipEntries(buf);
+  const find=n=>ents.find(e=>e.name===n);
+  const sheetEnt=ents.filter(e=>/^xl\/worksheets\/sheet\d+\.xml$/i.test(e.name)).sort((a,b)=>a.name.localeCompare(b.name,{numeric:true}))[0];
+  if(!sheetEnt) throw new Error('XLSX дотор worksheet олдсонгүй.');
+  const sharedEnt=find('xl/sharedStrings.xml');
+  let shared=[];
+  if(sharedEnt){
+    const tx=utf8(await unzipEntry(buf,sharedEnt));
+    const doc=new DOMParser().parseFromString(tx,'application/xml');
+    shared=[...doc.getElementsByTagName('si')].map(si=>[...si.getElementsByTagName('t')].map(t=>t.textContent).join(''));
+  }
+  const sx=utf8(await unzipEntry(buf,sheetEnt));
+  const doc=new DOMParser().parseFromString(sx,'application/xml');
+  if(doc.querySelector('parsererror')) throw new Error('Worksheet XML уншихад алдаа гарлаа.');
+  const rows=[];
+  for(const re of doc.getElementsByTagName('row')){
+    const row=[];
+    for(const ce of re.getElementsByTagName('c')){
+      const ref=ce.getAttribute('r')||''; const ci=colIndex(ref); if(ci<0) continue;
+      while(row.length<=ci) row.push(null);
+      const type=ce.getAttribute('t')||'';
+      let val='';
+      if(type==='inlineStr'){ val=xmlText(ce); }
+      else { const ve=ce.getElementsByTagName('v')[0]; val=ve?ve.textContent:''; if(type==='s'){const idx=Number(val);val=Number.isInteger(idx)&&shared[idx]!==undefined?shared[idx]:'';} else if(type==='b') val=val==='1'?'TRUE':'FALSE'; }
+      row[ci]=val;
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+
+const $=id=>document.getElementById(id);
+let N=5,A=[],D=[],H=[],AC=[],AZ=[],L=[],C=[],FP=[],mz=1,showA=true,showC=true;
+
+function dms(d,m,s){if(d===''||m===''||s==='')return NaN;return +d+(+m)/60+(+s)/3600}
+function norm(a){return((a%360)+360)%360}
+function fd(a){a=norm(a);let d=Math.floor(a),q=(a-d)*60,m=Math.floor(q),s=(q-m)*60;if(s>=59.995){s=0;m++}if(m>=60){m=0;d=(d+1)%360}return `${d}° ${String(m).padStart(2,'0')}′ ${s.toFixed(2).padStart(5,'0')}″`}
+function dmsRaw(a){
+  if(!Number.isFinite(a)) return '—';
+  const sign=a<0?'−':''; a=Math.abs(a);
+  let d=Math.floor(a);
+  let q=(a-d)*60, m=Math.floor(q), sec=(q-m)*60;
+  if(sec>=59.995){sec=0;m++;}
+  if(m>=60){m=0;d++;}
+  return `${sign}${d}° ${String(m).padStart(2,'0')}′ ${sec.toFixed(2).padStart(5,'0')}″`;
+}
+function fsd(a){return dmsRaw(a)}
+function num(v,n=4){return Number.isFinite(v)?v.toFixed(n):'—'}
+
+function toggleOpenUI(){
+ const isOpen=$('type').value==='open';
+ $('openEndBox').style.display=isOpen?'grid':'none';
+ $('openEndInfo').style.display=isOpen?'block':'none';
+ $('endAzBox').style.display=isOpen?'grid':'none';
+ $('openClosureCard').style.display=isOpen?'block':'none';
+ $('angleFormula').innerHTML=isOpen?
+   'Задгай сэлгэц: <b>Σβ₀ = α<sub>төгс</sub> − α<sub>эх</sub> + 180°·n</b><br>Энд <b>n = хэмжсэн өнцгийн тоо</b>, α<sub>эх</sub> = P1→P2, α<sub>төгс</sub> = P(n−1)→Pn.<br>Өнцөг: P1→P2→P3, P2→P3→P4, … буюу дунд цэг дээр хэмжсэн дотоод өнцөг.' :
+   'Битүү сэлгэц: <b>Σβ₀ = 180°(n−2)</b><br>fβ = Σβ<sub>хэмжсэн</sub> − Σβ<sub>0</sub><br>Хэрэв |fβ| ≤ fβ<sub>зөвш</sub>: <b>Vβ = −fβ/n</b><br>β′<sub>i</sub> = β<sub>i</sub> + Vβ';
+ $('closureFormula').innerHTML=isOpen?'<b>f<sub>s</sub> = √(fX² + fY²)</b><br><b>M = ΣD / f<sub>s</sub></b><br>Энд fX, fY нь тооцоолсон төгсгөлийн координат ба мэдэгдэж буй төгсгөлийн координатын зөрүү.':'<b>f<sub>s</sub> = √(fX² + fY²)</b><br><b>M = ΣD / f<sub>s</sub></b><br>Харьцангуй хаалтын алдаа = <b>1 : M</b>';
+}
+function build(){
+ N=Math.max(3,Math.min(100,+$('n').value||5));$('n').value=N;
+ toggleOpenUI();
+ let b=$('meas');b.innerHTML='';
+ let isOpen=$('type').value==='open';
+ let rows=isOpen?N-2:N;
+ for(let i=1;i<=rows;i++){
+   let point=isOpen?`P${i}→P${i+1}`:`P${i}`;
+   let anglePath=isOpen?`P${i}→P${i+1}→P${i+2}`:`β${i}`;
+   b.insertAdjacentHTML('beforeend',`<tr><td><b>${point}</b></td>
+    <td><input id="ad${i}" class="measure-input" inputmode="decimal" autocomplete="off" placeholder="${anglePath}"></td>
+    <td><input id="am${i}" class="measure-input" inputmode="decimal" autocomplete="off" placeholder="′"></td>
+    <td><input id="as${i}" class="measure-input" inputmode="decimal" autocomplete="off" placeholder="″"></td>
+    <td><input id="dd${i}" class="measure-input distance-input" inputmode="decimal" autocomplete="off" placeholder="зай, м"></td>
+    <td><input id="hh${i}" class="measure-input height-input" inputmode="decimal" autocomplete="off" placeholder="ΔH, м"></td></tr>`);
+ }
+ if(isOpen){
+   $('openLastLineBox').style.display='block';
+   $('openLastLine').innerHTML=`<tr><td><b>P${N-1}→P${N}</b></td><td><input id="dd${N-1}" class="measure-input distance-input" inputmode="decimal" autocomplete="off" placeholder="зай, м"></td><td><input id="hh${N-1}" class="measure-input height-input" inputmode="decimal" autocomplete="off" placeholder="ΔH, м"></td></tr>`;
+ }else{
+   $('openLastLineBox').style.display='none';
+   $('openLastLine').innerHTML='';
+ }
+ clearOut();
+ attachMeasurementEvents();
+}
+
+function clearOut(){
+ ['angletab','aztab','inctab','bow','coord','final'].forEach(id=>$(id).innerHTML='');
+ ['sumB','theory','fb','vb','fx','fy','fh','sd','fx2','fy2','fs','rel'].forEach(id=>$(id).textContent='—');
+ $('decision').textContent='Хэмжилт оруулна уу.';$('relstat').textContent='—';A=[];D=[];H=[];AC=[];AZ=[];L=[];C=[];FP=[];selectedPointIndex=-1;selectedPointRef=null;if($('azimuthResult'))$('azimuthResult').style.display='none';draw()
+}
+function toNum(v){
+  if(v===undefined || v===null) return NaN;
+  v=String(v).trim().replace(/,/g,'.').replace(/\s+/g,'');
+  if(v==='') return NaN;
+  return Number(v);
+}
+function read(){
+ A=[];D=[];H=[];let miss=[],isOpen=$('type').value==='open';
+ let rows=isOpen?N-1:N;
+ for(let i=1;i<=rows;i++){
+  let a;
+  if(isOpen && i===N-1) a=0;
+  else a=dms(toNum($(`ad${i}`).value),toNum($(`am${i}`).value),toNum($(`as${i}`).value));
+  let d=toNum($(`dd${i}`).value), h=toNum($(`hh${i}`).value);
+  if(!Number.isFinite(a) && !(isOpen&&i===N-1))miss.push(`β${i+1}`);
+  if(!Number.isFinite(d))miss.push(`P${i}→P${i+1} D`);
+  if(!Number.isFinite(h))miss.push(`P${i}→P${i+1} ΔH`);
+  A.push(a);D.push(d);H.push(h);
+ }
+ return miss
+}
+
+function calcCore(){
+ const isOpen=$('type').value==='open';
+ const x0=toNum($('x0').value),y0=toNum($('y0').value),h0=toNum($('h0').value),az0=dms(toNum($('azd').value),toNum($('azm').value),toNum($('azs').value));
+ if(!Number.isFinite(x0)||!Number.isFinite(y0)||!Number.isFinite(h0)||!Number.isFinite(az0)){ $('inputStatus').innerHTML='<span class="bad">Эхний X, Y, H болон α₁-ийг бүрэн оруулна уу.</span>';return; }
+ A=[];D=[];H=[];let miss=[];
+ for(let i=1;i<=N;i++){
+   const ad=$(`ad${i}`),am=$(`am${i}`),as=$(`as${i}`),dd=$(`dd${i}`),hh=$(`hh${i}`);
+   if(isOpen && i===N) continue;
+   if(!isOpen || i<N){
+     if(!isOpen || i<N-1){
+       let a=dms(toNum(ad.value),toNum(am.value),toNum(as.value));
+       if(!Number.isFinite(a)){ if(!(isOpen&&i===N)) miss.push(`β${i}`); a=NaN; }
+       A.push(a);
+     }
+     let dv=toNum(dd.value),hv=toNum(hh.value); if(!Number.isFinite(dv))miss.push(`D${i}`); if(!Number.isFinite(hv))miss.push(`ΔH${i}`); D.push(dv);H.push(hv);
+   }
+ }
+ // Open traverse has N−1 lines and N−2 measured interior angles β2...βN−1.
+ if(isOpen){
+   A=[];D=[];H=[];
+   for(let i=1;i<=N-1;i++){
+     let dv=toNum($(`dd${i}`).value),hv=toNum($(`hh${i}`).value);
+     if(!Number.isFinite(dv))miss.push(`D${i}`); if(!Number.isFinite(hv))miss.push(`ΔH${i}`); D.push(dv);H.push(hv);
+     if(i<=N-2){let a=dms(toNum($(`ad${i}`).value),toNum($(`am${i}`).value),toNum($(`as${i}`).value));if(!Number.isFinite(a))miss.push(`β${i+1}`);A.push(a);}
+   }
+ }
+ if(miss.length){$('inputStatus').innerHTML='<span class="bad"><b>Дутуу эсвэл буруу өгөгдөл:</b> '+miss.join(', ')+'</span>';return;}
+ const sb=A.reduce((a,b)=>a+b,0), tSec=toNum($('tol').value)||30;
+ let endAzKnown=NaN,th=NaN,fb=NaN;
+ const angleCount = isOpen ? A.length : N;
+ let deltaAzOpen=0;
+ if(isOpen){
+   const e1=toNum($('eazd').value),e2=toNum($('eazm').value),e3=toNum($('eazs').value);
+   if(Number.isFinite(e1)&&Number.isFinite(e2)&&Number.isFinite(e3)) endAzKnown=dms(e1,e2,e3);
+   if(!Number.isFinite(endAzKnown)){
+     $('inputStatus').innerHTML='<span class="bad"><b>Задгай сэлгэцэд төгсгөлийн азимут α<sub>төгс</sub>-ийг заавал оруулна.</b><br>Учир нь Σβ₀ = α<sub>төгс</sub> − α<sub>эх</sub> + 180°·n томьёогоор онолын өнцгийн нийлбэрийг бодно.</span>';
+     return;
+   }
+   // Задгай сэлгэцэд n = хэмжсэн өнцгийн тоо (5 цэгтэй, 3 өнцөг -> n=3).
+   // Азимутын ялгааг эерэг чиглэлийн 0–360° ялгавраар авч, дараа нь 180°·n нэмнэ.
+   // Энэ нь жишээ нь αэх=270°, αтөгс=0° үед Δα=90° болгож,
+   // Σβ₀ = 90° + 180°·3 = 630° гаргана.
+    // Задгай сэлгэцэд n = хэмжсэн өнцгийн тоо. 5 цэг, 3 өнцөг -> n=3.
+    // Зөвхөн задгай сэлгэцийн Σβ₀-д азимутын ялгаврыг хэрэглэнэ.
+    // Δα-г 0–360°-ийн эерэг ялгавраар авна. Харин fβ-г normalize хийхгүй.
+    deltaAzOpen = norm(endAzKnown - az0);
+    th = deltaAzOpen + 180 * angleCount;
+  }else th=(N-2)*180;
+  if(Number.isFinite(th))fb=sb-th;
+  const fbtol=1.5*tSec*Math.sqrt(angleCount),ok=Number.isFinite(fb)&&Math.abs(fb*3600)<=fbtol,vb=Number.isFinite(fb)?-fb/angleCount:0,AC=A.map(v=>v+vb);
+ $('angleFormula').innerHTML=isOpen?`Задгай сэлгэц: <b>Σβ₀ = Δα + 180°·n</b><br>Энд <b>Δα = (α<sub>төгс</sub> − α<sub>эх</sub>)<sub>0…360°</sub></b>, <b>n = хэмжсэн өнцгийн тоо = ${angleCount}</b><br>α<sub>эх</sub> = ${fd(az0)}, α<sub>төгс</sub> = ${fd(endAzKnown)}, Δα = <b>${fd(deltaAzOpen)}</b><br>Σβ₀ = <b>${fd(th)}</b><br><b>fβ = Σβ<sub>хэмжсэн</sub> − Σβ₀</b> (360°-ийн normalize хийхгүй)<br>fβ<sub>зөвш</sub> = ±1.5t√n = <b>±${fbtol.toFixed(2)}″</b><br>Vβ = −fβ/n, <b>энд n = хэмжсэн өнцгийн тоо = ${angleCount}</b><br>β′<sub>i</sub> = β<sub>i</sub> + Vβ`:`Битүү сэлгэц: Σβ₀ = 180°(n−2) = <b>${fd(th)}</b><br><b>fβ = Σβ<sub>хэмжсэн</sub> − Σβ₀</b> (360°-ийн normalize хийхгүй)<br>fβ<sub>зөвш</sub> = ±1.5t√n = <b>±${fbtol.toFixed(2)}″</b><br>Vβ = −fβ/n, <b>энд n = хэмжсэн өнцгийн тоо = ${angleCount}</b><br>β′<sub>i</sub> = β<sub>i</sub> + Vβ`;
+ $('sumB').textContent=dmsRaw(sb);$('theory').textContent=Number.isFinite(th)?dmsRaw(th):'—';$('fb').textContent=Number.isFinite(fb)?dmsRaw(fb):'—';$('vb').textContent=Number.isFinite(fb)?dmsRaw(vb):'—';
+ let ab=$('angletab');ab.innerHTML='';
+ if(isOpen){for(let i=0;i<A.length;i++){let j=i+1;ab.insertAdjacentHTML('beforeend',`<tr><td>P${j}→P${j+1}→P${j+2}</td><td>${fd(A[i])}</td><td>${fsd(vb)}</td><td><b>${fd(AC[i])}</b></td></tr>`);}}
+ else{for(let i=0;i<A.length;i++)ab.insertAdjacentHTML('beforeend',`<tr><td>β${i+1}</td><td>${fd(A[i])}</td><td>${fsd(vb)}</td><td><b>${fd(AC[i])}</b></td></tr>`);}
+ $('decision').innerHTML=isOpen?(Number.isFinite(endAzKnown)?(ok?`<span class="ok">✓ |fβ|=${Math.abs(fb*3600).toFixed(2)}″ ≤ ${fbtol.toFixed(2)}″. Засварласан өнцгийг ашиглав.</span>`:`<span class="bad">⚠ |fβ|=${Math.abs(fb*3600).toFixed(2)}″ > ${fbtol.toFixed(2)}″.</span>`):'<span class="warn">Задгай сэлгэцийн fβ-г бодохын тулд төгсгөлийн азимут шаардлагатай.</span>'):(ok?`<span class="ok">✓ |fβ|=${Math.abs(fb*3600).toFixed(2)}″ ≤ ${fbtol.toFixed(2)}″. Засварласан өнцгийг ашиглав.</span>`:`<span class="bad">⚠ |fβ|=${Math.abs(fb*3600).toFixed(2)}″ > ${fbtol.toFixed(2)}″.</span>`);
+ let angleForCalc=ok?AC:A; AZ=[norm(az0)];
+ for(let i=1;i<(isOpen?D.length:N);i++){let beta=isOpen?angleForCalc[i-1]:angleForCalc[i];AZ[i]=$('side').value==='right'?norm(AZ[i-1]+180-beta):norm(AZ[i-1]-180+beta);}
+ let at=$('aztab');at.innerHTML='';AZ.forEach((az,i)=>{let to=isOpen?i+2:((i+1)%N)+1;at.insertAdjacentHTML('beforeend',`<tr><td>P${i+1}→P${to}</td><td><b>${fd(az)}</b></td></tr>`)});
+ L=[];let fxm=0,fym=0,fhm=0,sd=0;
+ for(let i=0;i<D.length;i++){let r=AZ[i]*Math.PI/180,dx=D[i]*Math.cos(r),dy=D[i]*Math.sin(r),to=isOpen?i+2:((i+1)%N)+1;L.push({from:i+1,to,D:D[i],az:AZ[i],dx,dy,dh:H[i]});fxm+=dx;fym+=dy;fhm+=H[i];sd+=D[i];}
+ let xEndCalc=x0+fxm,yEndCalc=y0+fym,hEndCalc=h0+fhm,fX,fY,fH;
+ if(isOpen){let xe=toNum($('xe').value),ye=toNum($('ye').value),he=toNum($('he').value);fX=(xe-x0)-fxm;fY=(ye-y0)-fym;fH=(he-h0)-fhm;$('xcalcEnd').textContent=num(xEndCalc,4)+' m';$('ycalcEnd').textContent=num(yEndCalc,4)+' m';$('hcalcEnd').textContent=num(hEndCalc,4)+' m';$('fhOpen').textContent=num(fH,5)+' m';$('openClosureStatus').innerHTML=`<b>ΣΔX₀</b>=${num(xe-x0,5)} м, <b>ΣΔY₀</b>=${num(ye-y0,5)} м, <b>Σh₀</b>=${num(he-h0,5)} м<br><b>fX=${num(fX,5)} м, fY=${num(fY,5)} м, fH=${num(fH,5)} м</b>`;}else{fX=-fxm;fY=-fym;fH=-fhm;}
+ $('fx').textContent=num(fX,5);$('fy').textContent=num(fY,5);$('fh').textContent=num(fH,5);
+ let it=$('inctab');it.innerHTML='';L.forEach(l=>it.insertAdjacentHTML('beforeend',`<tr><td>P${l.from}→P${l.to}</td><td>${num(l.D,3)}</td><td>${fd(l.az)}</td><td>${num(l.dx,5)}</td><td>${num(l.dy,5)}</td><td>${num(l.dh,5)}</td></tr>`));
+ let fs=Math.hypot(fX,fY),M=fs?sd/fs:Infinity,req=toNum($('req').value)||10000;$('sd').textContent=num(sd,3)+' m';$('fx2').textContent=num(fX,5)+' m';$('fy2').textContent=num(fY,5)+' m';$('fs').textContent=num(fs,5)+' m';$('rel').textContent=M===Infinity?'1 : ∞':'1 : '+Math.round(M).toLocaleString();$('relstat').textContent=M>=req?'✓ Шаардлага хангасан':'✕ Шаардлага хангахгүй';$('relstat').className='sub '+(M>=req?'ok':'bad');
+ let bw=$('bow');bw.innerHTML='';let nLines=L.length,s100=sd/100/nLines,fhAllow=0.04*s100*Math.sqrt(nLines);
+ let internalIdx=[];
+ if(isOpen){ for(let i=1;i<L.length-1;i++) internalIdx.push(i); }
+ const internalD=internalIdx.reduce((sum,i)=>sum+(Number.isFinite(L[i].D)?L[i].D:0),0);
+ L.forEach((l,idx)=>{
+   let vx=0,vy=0,vh=0;
+   if(isOpen){
+     if(internalIdx.includes(idx) && internalD){
+       vx=fX*l.D/internalD;
+       vy=fY*l.D/internalD;
+       vh=fH*l.D/internalD;
+     }
+   }else{
+     vx=sd?-fX*l.D/sd:0;
+     vy=sd?-fY*l.D/sd:0;
+     vh=sd?(-fH/nLines)*(l.D/sd):0;
+   }
+   l.vx=vx;l.vy=vy;l.vh=vh;l.cdx=l.dx+vx;l.cdy=l.dy+vy;l.cdh=l.dh+vh;
+   bw.insertAdjacentHTML('beforeend',`<tr><td>P${l.from}→P${l.to}</td><td>${num(vx,5)}</td><td>${num(vy,5)}</td><td>${num(vh,5)}</td><td><b>${num(l.cdx,5)}</b></td><td><b>${num(l.cdy,5)}</b></td><td><b>${num(l.cdh,5)}</b></td></tr>`);
+ });
+ if(isOpen){
+   $('adjustFormula').innerHTML=`<b>Задгай сэлгэцийн тусгай засвар:</b> P1→P2 болон P${N-1}→P${N} нь мэдэгдэж буй эхлэл/төгсгөлийн нөхцөл тул эдгээр талд засвар өгөхгүй.<br>Зөвхөн P2→P3, …, P${N-2}→P${N-1} дотоод талуудад засвар тараана.<br>ΣD<sub>дотоод</sub> = <b>${num(internalD,3)} м</b><br>v<sub>ΔXᵢ</sub> = fX × Dᵢ/ΣD<sub>дотоод</sub>; &nbsp; v<sub>ΔYᵢ</sub> = fY × Dᵢ/ΣD<sub>дотоод</sub>; &nbsp; v<sub>ΔHᵢ</sub> = fH × Dᵢ/ΣD<sub>дотоод</sub><br>Энд fX=(X<sub>төгс</sub>−X<sub>эх</sub>)−ΣΔX, fY=(Y<sub>төгс</sub>−Y<sub>эх</sub>)−ΣΔY, fH=(H<sub>төгс</sub>−H<sub>эх</sub>)−ΣΔH.<br><b>P1→P2, P${N-1}→P${N}: vX=vY=vH=0.</b>`;
+ }
+let C0=[{name:'P1',x:x0,y:y0,h:h0}],x=x0,y=y0,h=h0;
+ for(let i=0;i<L.length;i++){
+   x+=L[i].cdx;y+=L[i].cdy;h+=L[i].cdh;
+   if(!isOpen && i===L.length-1){/* closing line returns to P1; do not create P(n+1) */}
+   else if(isOpen && i===L.length-1){
+     const xe=toNum($('xe').value),ye=toNum($('ye').value),he=toNum($('he').value);
+     C0.push({name:'P'+(i+2),x:xe,y:ye,h:he});
+   }else C0.push({name:'P'+(i+2),x,y,h});
+ }
+ C=C0;
+ recomputeFixedPoints(); renderFixedRows(); refreshFixedSelectors();
+ let ct=$('coord');ct.innerHTML='';C.forEach(p=>ct.insertAdjacentHTML('beforeend',`<tr><td><b>${p.name}</b></td><td>${num(p.x,4)}</td><td>${num(p.y,4)}</td><td>${num(p.h,4)}</td></tr>`));let ft=$('final');ft.innerHTML='';L.forEach(l=>ft.insertAdjacentHTML('beforeend',`<tr><td>P${l.from}→P${l.to}</td><td>${fd(l.az)}</td><td>${num(l.D,3)}</td><td>${num(l.cdx,5)}</td><td>${num(l.cdy,5)}</td><td>${num(l.cdh,5)}</td></tr>`));
+ $('inputStatus').innerHTML=`<span class="ok">✓ Онолын дарааллаар тооцооллоо. Өнцөг → дирекцион өнцөг → ΔX,ΔY → fX,fY → fₛ/L → солбицлын засвар → өндрийн засвар → эцсийн X,Y,H.</span>`;fit();
+}
+function calc(){
+  try{
+    calcCore();
+  }catch(err){
+    console.error(err);
+    $('inputStatus').innerHTML='<span class="bad"><b>✕ Тооцооллын алдаа:</b> '+(err && err.message ? err.message : err)+'</span>';
+    $('decision').innerHTML='<span class="bad">Програмын тооцооллын алдаа гарлаа. Өгөгдлөө шалгана уу.</span>';
+  }
+}
+function fillMissingZero(){
+  for(let i=1;i<=N;i++){
+    ['ad','am','as','dd','hh'].forEach(k=>{
+      let el=$(`${k}${i}`);
+      if(el && el.value.trim()==='') el.value='0';
+    });
+  }
+  $('inputStatus').innerHTML='<span class="warn">⚠ Хоосон хэмжилтийн нүднүүдэд 0 орууллаа. Бодит хэмжилтийн утга байвал 0-ийг заавал өөрийн хэмжилтийн утгаар солино уу.</span>';
+}
+function attachMeasurementEvents(){
+  document.querySelectorAll('.measure-input').forEach(el=>{
+    el.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        calc();
+      }
+    });
+    el.addEventListener('input',()=>{
+      $('inputStatus').innerHTML='Хэмжилтийн утгуудыг гараар оруулж байна…';
+    });
+  });
+}
+
+function parseExcelAngle(v){
+  if(v===undefined||v===null||String(v).trim()==='') return NaN;
+  if(typeof v==='number') return Number(v);
+  let s=String(v).trim().replace(/,/g,'.');
+  // DMS text: 90°12′34″ / 90 12 34 / 90:12:34
+  const m=s.match(/^\s*(-?\d+(?:\.\d+)?)\s*[°:]\s*(\d+(?:\.\d+)?)?\s*[′':]\s*(\d+(?:\.\d+)?)?\s*[″"]?\s*$/);
+  if(m){let d=Number(m[1]),mi=Number(m[2]||0),se=Number(m[3]||0);return dms(d,mi,se);}
+  const parts=s.replace(/[°′″'\"]+/g,' ').replace(/:/g,' ').trim().split(/\s+/).filter(Boolean).map(Number);
+  if(parts.length>=2 && parts.every(Number.isFinite)) return dms(parts[0],parts[1],parts[2]||0);
+  return Number(s);
+}
+async function importExcel(){
+  const f=$('excelFile').files[0];
+  if(!f){$('excelStatus').innerHTML='<span class="bad">Файл сонгоно уу.</span>';return;}
+  $('excelStatus').innerHTML='<span class="warn">⏳ Excel файлыг уншиж байна…</span>';
+  try{
+    const rows=await readLocalSpreadsheet(f);
+    const data=rows.filter(r=>Array.isArray(r)&&r.length>=5&&r.some(v=>String(v??'').trim()!==''));
+    if(!data.length)throw new Error('5 баганатай өгөгдөл олдсонгүй.');
+    let start=0; const first=data[0]||[]; const h=first.map(v=>String(v??'').toLowerCase()).join(' ');
+    if(/градус|минут|секунд|өнц|angle|degree|minute|second|dist|зай|өндөр|dh/.test(h)||!Number.isFinite(toNum(first[0]))) start=1;
+    const vals=data.slice(start); const isOpen=$('type').value==='open';
+    build(); const angleRows=isOpen?N-2:N, lineRows=isOpen?N-1:N; let angleCount=0,lineCount=0;
+    vals.slice(0,lineRows).forEach((r,i)=>{
+      const deg=toNum(r[0]),min=toNum(r[1]),sec=toNum(r[2]),dist=toNum(r[3]),dh=toNum(r[4]);
+      if(i<angleRows){ if(Number.isFinite(deg))$('ad'+(i+1)).value=deg; if(Number.isFinite(min))$('am'+(i+1)).value=min; if(Number.isFinite(sec))$('as'+(i+1)).value=sec; if(Number.isFinite(deg)||Number.isFinite(min)||Number.isFinite(sec))angleCount++;}
+      if(Number.isFinite(dist)){$('dd'+(i+1)).value=dist;lineCount++;} if(Number.isFinite(dh))$('hh'+(i+1)).value=dh;
+    });
+    $('excelStatus').innerHTML=`<span class="ok">✓ Excel автоматаар импортлогдлоо: ${lineCount} шугамын D, ΔH болон ${angleCount} өнцгийн мөр бөглөгдлөө.</span>`;
+    setTimeout(()=>calc(),30);
+  }catch(err){$('excelStatus').innerHTML='<span class="bad">✕ Excel унших алдаа: '+err.message+'</span>'; console.error(err);}
+}
+function angleToDMSFields(deg){
+  let x=Number(deg); if(!Number.isFinite(x)) return ['','',''];
+  let sign=x<0?'-':''; x=Math.abs(x); let d=Math.floor(x), q=(x-d)*60, m=Math.floor(q), sec=(q-m)*60;
+  return [sign+d,m.toFixed(0),sec.toFixed(2)];
+}
+function downloadExcelTemplate(){
+  const csv='Градус,Минут,Секунд,Хэвтээ зай D (м),Өндөржилтийн өөрчлөлт ΔH (м)\n90,0,0,100.000,1.200\n95,12,30,120.000,-0.500\n88,30,15,110.000,0.300\n92,0,0,105.000,-0.200';
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='GEONET_5column_template.csv';a.click();URL.revokeObjectURL(a.href);
+}
+$('excelFile')?.addEventListener('change',importExcel);
+
+function fixedExcelNum(v){
+  if(v===undefined||v===null||String(v).trim()==='') return NaN;
+  return Number(String(v).trim().replace(/,/g,'.').replace(/\s/g,''));
+}
+function clearFixedPoints(){
+  FP=[]; selectedPointRef=null; selectedPointIndex=-1;
+  if(typeof surfaceState!=='undefined') surfaceState={triangles:[],contours:[],points:[],built:false};
+  refreshFixedSelectors(); renderFixedRows(); renderPicker(); fit();
+  if($('fixedExcelStatus'))$('fixedExcelStatus').innerHTML='<span class="ok">✓ Фикст цэгүүдийг цэвэрлэлээ.</span>';
+}
+function downloadFixedExcelTemplate(){
+  const csv='Цэгийн нэр,Хэвтээ зай D (м),Өндөржилтийн өөрчлөлт ΔH (м),Хэвтээ өнцөг — градус,Хэвтээ өнцөг — минут,Хэвтээ өнцөг — секунд\nFP01,100.000,1.200,90,0,0\nFP02,120.500,-0.350,95,12,30\nFP03,85.250,0.125,88,30,15';
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='GEONET_fixed_points_6column_template.csv';a.click();URL.revokeObjectURL(a.href);
+}
+async function importFixedExcel(){
+  const f=$('fixedExcelFile')?.files?.[0];
+  if(!f)return;
+  const station=getPointById($('fpStation').value), back=getPointById($('fpBack').value), dir=$('fpDir').value;
+  if(!station||!back||station.id===back.id){
+    $('fixedExcelStatus').innerHTML='<span class="bad">✕ Эхлээд багажийн цэг болон арын/лавлах цэгийг зөв сонгоно уу.</span>';return;
+  }
+  $('fixedExcelStatus').innerHTML='<span class="warn">⏳ Excel файлыг уншиж байна…</span>';
+  try{
+    const rows=await readLocalSpreadsheet(f);
+    const data=rows.filter(r=>Array.isArray(r)&&r.length>=6&&r.some(v=>String(v??'').trim()!==''));
+    if(!data.length)throw new Error('6 баганатай өгөгдөл олдсонгүй.');
+    let start=0;
+    const h=(data[0]||[]).map(v=>String(v??'').toLowerCase()).join(' ');
+    const testName=String(data[0]?.[0]??'').trim();
+    const testD=fixedExcelNum(data[0]?.[1]), testDH=fixedExcelNum(data[0]?.[2]), testDeg=fixedExcelNum(data[0]?.[3]);
+    if(/цэг|нэр|point|name|зай|dist|өндөр|dh|градус|degree|minute|second|секунд|минут|өнц/.test(h) || (!testName || !Number.isFinite(testD) || !Number.isFinite(testDH) || !Number.isFinite(testDeg))) start=1;
+    const vals=data.slice(start).map((r,idx)=>({
+      name:String(r[0]??'').trim(),D:fixedExcelNum(r[1]),dh:fixedExcelNum(r[2]),deg:fixedExcelNum(r[3]),min:fixedExcelNum(r[4]),sec:fixedExcelNum(r[5]),row:idx+start+1
+    })).filter(r=>r.name||Number.isFinite(r.D)||Number.isFinite(r.deg));
+    if(!vals.length)throw new Error('Тоон өгөгдөлтэй мөр олдсонгүй.');
+    const backAz=pointAzimuth(station,back), created=[], errors=[];
+    const existingNames=new Set(C.map(p=>String(p.name).trim()).concat(FP.map(p=>String(p.name).trim())));
+    vals.slice(0,20000).forEach(r=>{
+      if(!r.name){errors.push(`мөр ${r.row}: цэгийн нэр хоосон`);return;}
+      if(existingNames.has(r.name)){errors.push(`${r.name}: ижил нэр өмнө нь байна`);return;}
+      if(!Number.isFinite(r.D)||r.D<=0){errors.push(`${r.name}: D буруу`);return;}
+      if(!Number.isFinite(r.dh)){errors.push(`${r.name}: ΔH буруу`);return;}
+      if(!Number.isFinite(r.deg))r.deg=0; if(!Number.isFinite(r.min))r.min=0; if(!Number.isFinite(r.sec))r.sec=0;
+      if(r.min<0||r.min>=60||r.sec<0||r.sec>=60){errors.push(`${r.name}: минут/секунд 0–59 байх ёстой`);return;}
+      const angle=r.deg+r.min/60+r.sec/3600;
+      const az=norm(backAz+(dir==='right'?angle:-angle));
+      const rad=az*Math.PI/180;
+      const x=station.x+r.D*Math.cos(rad), y=station.y+r.D*Math.sin(rad), hh=station.h+r.dh;
+      const p={name:r.name,x,y,h:hh,az,D:r.D,dh:r.dh,visible:true,stationId:station.id,backId:back.id,stationName:station.name,backName:back.name,angle,dir,valid:true};
+      FP.push(p); created.push(p); existingNames.add(r.name);
+    });
+    if(typeof surfaceState!=='undefined') surfaceState={triangles:[],contours:[],points:[],built:false};
+    refreshFixedSelectors(); renderFixedRows(); renderPicker(); fit();
+    if(created.length){selectedPointRef={...created[created.length-1],kind:'fixed',index:FP.length-1,id:'F'+FP.length}; renderPicker(); draw();}
+    $('fixedExcelStatus').innerHTML=`<span class="ok">✓ ${created.length} цэгийг Excel-ээс амжилттай оруулж зурагт харууллаа.</span>${errors.length?`<br><span class="warn">⚠ Алгассан мөр: ${errors.slice(0,8).join('; ')}${errors.length>8?' …':''}</span>`:''}`;
+    $('fixedExcelFile').value='';
+  }catch(err){ $('fixedExcelStatus').innerHTML='<span class="bad">✕ Excel унших алдаа: '+err.message+'</span>'; console.error(err); }
+}
+$('fixedExcelFile')?.addEventListener('change',importFixedExcel);
+let selectedPointIndex=-1,selectedPointRef=null;
+
+// Recalculate all constructed (fixed) points after the main network coordinates change.
+// Each fixed point is defined by: station + backsight + horizontal angle + D + dH.
+function recomputeFixedPoints(){
+  if(typeof surfaceState!=='undefined') surfaceState.built=false;
+  if(!Array.isArray(FP) || !FP.length) return;
+  const getNow = (id) => {
+    if(!id) return null;
+    if(String(id).startsWith('N')){
+      const i=parseInt(String(id).slice(1),10)-1;
+      return C[i] || null;
+    }
+    if(String(id).startsWith('F')){
+      const i=parseInt(String(id).slice(1),10)-1;
+      return FP[i] || null;
+    }
+    return null;
+  };
+  // A fixed point can depend on an earlier fixed point, so process in creation order.
+  FP.forEach((p,i)=>{
+    if(!p) return;
+    const station=getNow(p.stationId), back=getNow(p.backId);
+    if(!station || !back){ p.valid=false; return; }
+    const backAz=pointAzimuth(station,back);
+    const az=norm(backAz+(p.dir==='right'?Number(p.angle)||0:-(Number(p.angle)||0)));
+    const rad=az*Math.PI/180;
+    p.az=az;
+    p.x=station.x+(Number(p.D)||0)*Math.cos(rad);
+    p.y=station.y+(Number(p.D)||0)*Math.sin(rad);
+    p.h=station.h+(Number(p.dh)||0);
+    p.stationName=station.name;
+    p.backName=back.name;
+    p.valid=true;
+  });
+}
+
+function getPointById(id){
+  if(!id) return null;
+  if(String(id).startsWith('N')){
+    const i=parseInt(String(id).slice(1),10)-1;
+    return C[i] ? {...C[i],kind:'network',index:i,id:'N'+(i+1)} : null;
+  }
+  if(String(id).startsWith('F')){
+    const i=parseInt(String(id).slice(1),10)-1;
+    const p=FP[i]; return p ? {...p,kind:'fixed',index:i,id:'F'+(i+1)} : null;
+  }
+  return null;
+}
+function allPointObjects(){
+  const out=[];
+  C.forEach((p,i)=>out.push({...p,kind:'network',index:i,id:'N'+(i+1)}));
+  FP.forEach((p,i)=>{if(p&&p.valid!==false&&p.visible!==false)out.push({...p,kind:'fixed',index:i,id:'F'+(i+1)});});
+  return out;
+}
+function pointAzimuth(a,b){
+  return norm(Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI);
+}
+function refreshFixedSelectors(){
+  const st=$('fpStation'),bk=$('fpBack'); if(!st||!bk)return;
+  const oldS=st.value,oldB=bk.value;
+  const opts=[];
+  C.forEach((p,i)=>opts.push({id:'N'+(i+1),name:p.name}));
+  FP.forEach((p,i)=>{if(p&&p.valid!==false)opts.push({id:'F'+(i+1),name:p.name});});
+  st.innerHTML=opts.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+  bk.innerHTML=opts.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+  if(opts.some(o=>o.id===oldS))st.value=oldS;
+  if(opts.some(o=>o.id===oldB))bk.value=oldB;
+  if(!st.value && opts.length)st.value=opts[0].id;
+  if(!bk.value && opts.length>1)bk.value=opts[1].id;
+}
+function clearFixedInputs(){
+  ['fpName','fpD','fpDeg','fpMin','fpSec','fpDH'].forEach(id=>{if($(id))$(id).value='';});
+  if($('fixedStatus'))$('fixedStatus').textContent='Багажийн цэг, арын цэг, өнцөг, D, ΔH-ээ оруулна уу.';
+}
+function renderFixedRows(){
+  const tb=$('fixedRows'); if(!tb)return; tb.innerHTML='';
+  FP.forEach((p,i)=>{
+    if(!p)return;
+    if(p.visible===undefined)p.visible=true;
+    const tr=document.createElement('tr');
+    const on=p.visible!==false;
+    tr.innerHTML=`<td>${p.name}</td><td>${p.stationName}</td><td>${p.backName}</td><td>${fd(p.az)}</td><td>${num(p.D,3)}</td><td>${num(p.dh,3)}</td><td>${num(p.x,3)}</td><td>${num(p.y,3)}</td><td>${num(p.h,3)}</td><td><button type="button" class="secondary visibility-btn ${on?'visibility-on':'visibility-off'}" onclick="toggleFixedVisibility(${i})">${on?'👁 Асаалттай':'🚫 Унтраалттай'}</button></td><td><button type="button" class="secondary" onclick="removeFixedPoint(${i})">Устгах</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function toggleFixedVisibility(i){
+  if(!FP[i])return;
+  FP[i].visible=FP[i].visible===false;
+  renderFixedRows();
+  if(surfaceState.built) buildSurface(); else draw();
+}
+function setAllFixedVisibility(v){
+  FP.forEach(p=>{if(p)p.visible=v;});
+  renderFixedRows();
+  if(surfaceState.built) buildSurface(); else draw();
+}
+function removeFixedPoint(i){
+  FP.splice(i,1);
+  // Remap F-ids after deletion and invalidate/recompute any later dependent points.
+  FP.forEach((p,j)=>{
+    if(!p)return;
+    if(typeof p.stationId==='string' && p.stationId.startsWith('F')){
+      const old=parseInt(p.stationId.slice(1),10);
+      if(Number.isFinite(old) && old>i+1) p.stationId='F'+(old-1);
+      else if(old===i+1) p.valid=false;
+    }
+    if(typeof p.backId==='string' && p.backId.startsWith('F')){
+      const old=parseInt(p.backId.slice(1),10);
+      if(Number.isFinite(old) && old>i+1) p.backId='F'+(old-1);
+      else if(old===i+1) p.valid=false;
+    }
+  });
+  selectedPointRef=null;
+  recomputeFixedPoints(); refreshFixedSelectors(); renderFixedRows(); renderPicker(); draw();
+}
+function addFixedPoint(){
+  const station=getPointById($('fpStation').value), back=getPointById($('fpBack').value);
+  const name=($('fpName').value||'').trim();
+  const Dv=Number(String($('fpD').value||'').replace(',','.'));
+  const deg=Number(String($('fpDeg').value||'0').replace(',','.'));
+  const min=Number(String($('fpMin').value||'0').replace(',','.'));
+  const sec=Number(String($('fpSec').value||'0').replace(',','.'));
+  const dh=Number(String($('fpDH').value||'0').replace(',','.'));
+  const dir=$('fpDir').value;
+  if(!station||!back){alert('Багажийн цэг болон арын/лавлах цэгээ сонгоно уу.');return;}
+  if(station.id===back.id){alert('Багажийн цэг ба арын цэг ижил байж болохгүй.');return;}
+  if(!name){alert('Шинэ цэгийн нэр оруулна уу.');return;}
+  if(!Number.isFinite(Dv)||Dv<=0){alert('Хэвтээ зай D зөв оруулна уу.');return;}
+  if(!Number.isFinite(deg)||!Number.isFinite(min)||!Number.isFinite(sec)||min<0||min>=60||sec<0||sec>=60){alert('Өнцгийн градус, минут, секунд зөв оруулна уу.');return;}
+  if(!Number.isFinite(dh)){alert('ΔH зөв оруулна уу.');return;}
+  const angle=deg+min/60+sec/3600;
+  const backAz=pointAzimuth(station,back);
+  const az=norm(backAz+(dir==='right'?angle:-angle));
+  const rad=az*Math.PI/180;
+  const x=station.x+Dv*Math.cos(rad), y=station.y+Dv*Math.sin(rad), h=station.h+dh;
+  const p={name,x,y,h,az,D:Dv,dh,visible:true,stationId:station.id,backId:back.id,stationName:station.name,backName:back.name,angle,dir,valid:true};
+  FP.push(p); if(typeof surfaceState!=='undefined') surfaceState={triangles:[],contours:[],points:[],built:false}; refreshFixedSelectors(); renderFixedRows(); draw();
+  selectedPointRef={...p,kind:'fixed',index:FP.length-1,id:'F'+FP.length}; renderPicker(); draw();
+  $('fixedStatus').innerHTML=`<b>${name}</b> амжилттай нэмэгдлээ. Азимут = <b>${fd(az)}</b>, X = ${num(x,3)} м, Y = ${num(y,3)} м, H = ${num(h,3)} м.`;
+  $('fpName').value=''; $('fpD').value=''; $('fpDeg').value=''; $('fpMin').value=''; $('fpSec').value=''; $('fpDH').value='';
+}
+function nearestSelectablePoint(mx,my){
+  const pts=allPointObjects().filter(p=>p && p.valid!==false && p.visible!==false);
+  if(!pts.length)return null;
+  const c=$('canvas'),r=c.getBoundingClientRect(),W=r.width,H=r.height;
+  const tr=getViewTransform(W,H,pts);
+  let best=null,bd=18;
+  pts.forEach(p=>{
+    const d=Math.hypot(mx-tr.px(p.y),my-tr.py(p.x));
+    if(d<bd){bd=d;best=p;}
+  });
+  return best;
+}
+function onNetworkClick(e){
+  const r=$('canvas').getBoundingClientRect(),p=nearestSelectablePoint(e.clientX-r.left,e.clientY-r.top);
+  if(!p)return;
+  selectedPointIndex=p.kind==='network'?p.index:-1;
+  selectedPointRef=p;
+  renderPicker();
+  draw();
+}
+function renderPicker(){
+  const res=$('azimuthResult');
+  if(res){res.style.display='none';res.innerHTML='';}
+  const status=$('pickerStatus');
+  if(!selectedPointRef){
+    status.textContent='Зураг дээрх хүссэн цэг дээр шууд дарна уу.';
+    return;
+  }
+  const p=selectedPointRef;
+  const kind=p.kind==='fixed'?'Фикст цэг':'Сүлжээний цэг';
+  status.innerHTML=`<b>${kind}: ${p.name}</b><br>X = <b>${num(p.x,4)}</b> м &nbsp; | &nbsp; Y = <b>${num(p.y,4)}</b> м &nbsp; | &nbsp; H = <b>${num(p.h,4)}</b> м`;
+}
+function showAzimuthBetweenPoints(a,b){
+  if(!a||!b)return;
+  const az=pointAzimuth(a,b),back=norm(az+180);
+  const line=L.find(l=>l.from===Number(String(a.name).replace('P',''))&&l.to===Number(String(b.name).replace('P',''))) || L.find(l=>l.from===Number(String(b.name).replace('P',''))&&l.to===Number(String(a.name).replace('P','')));
+  let text=`<b>${a.name} → ${b.name}</b><br>ΔX = ${num(b.x-a.x,5)} м, ΔY = ${num(b.y-a.y,5)} м<br>Азимут = <b>${fd(az)}</b><br>Буцах азимут (${b.name} → ${a.name}) = <b>${fd(back)}</b>`;
+  if(line) text+=`<br>Тооцооллын шугамын азимут = <b>${fd(line.from===Number(String(a.name).replace('P',''))?line.az:norm(line.az+180))}</b>`;
+  $('azimuthResult').innerHTML=text;$('azimuthResult').style.display='block';
+}
+function example(){
+  const isOpen=$('type').value==='open';
+  $('n').value=5;
+  $('x0').value=5000; $('y0').value=3000; $('h0').value=100;
+  $('azd').value=35; $('azm').value=20; $('azs').value=0;
+  $('side').value='right'; $('tol').value=30; $('req').value=10000;
+  if(isOpen){
+    $('xe').value=5450; $('ye').value=3250; $('he').value=105;
+    $('eazd').value=0; $('eazm').value=0; $('eazs').value=0;
+    build();
+    [[90,0,0,125.235,1.235],[90,0,0,98.452,-.825],[90,0,0,115.620,.452],[0,0,0,103.815,-.617]].forEach((r,i)=>{
+      if(i<3){ $('ad'+(i+1)).value=r[0]; $('am'+(i+1)).value=r[1]; $('as'+(i+1)).value=r[2]; }
+      $('dd'+(i+1)).value=r[3]; $('hh'+(i+1)).value=r[4];
+    });
+  }else{
+    build();
+    [[108,0,5,125.235,1.235],[107,35,0,98.452,-.825],[110,15,0,115.620,.452],[106,45,0,103.815,-.617],[108,25,5,120.330,-.245]].forEach((r,i)=>{
+      $('ad'+(i+1)).value=r[0]; $('am'+(i+1)).value=r[1]; $('as'+(i+1)).value=r[2]; $('dd'+(i+1)).value=r[3]; $('hh'+(i+1)).value=r[4];
+    });
+  }
+  calc();
+}
+
+function clearAll(){$('x0').value='';$('y0').value='';$('h0').value='';$('azd').value='';$('azm').value='';$('azs').value='';build()}
+
+function nice(v){
+  v=Math.abs(Number(v)||1);
+  let p=Math.pow(10,Math.floor(Math.log10(v)));
+  let q=v/p;
+  let m=q<=1?1:q<=2?2:q<=5?5:10;
+  return m*p;
+}
+
+function axisLabels(g,W,H){
+ g.save();
+ g.strokeStyle='#667085';
+ g.fillStyle='#344054';
+ g.lineWidth=1.5;
+ g.font='11px Arial';
+ // North arrow
+ const ax=34, ay=58;
+ g.beginPath(); g.moveTo(ax,ay+28); g.lineTo(ax,ay-8); g.stroke();
+ g.beginPath(); g.moveTo(ax,ay-8); g.lineTo(ax-5,ay+2); g.lineTo(ax+5,ay+2); g.closePath(); g.fill();
+ g.textAlign='center'; g.fillText('N',ax,ay-16);
+ // X/Y orientation note
+ g.textAlign='left';
+ g.fillText('X = Хойд зүг ↑',12,H-28);
+ g.fillText('Y = Зүүн зүг →',12,H-12);
+ g.restore();
+}
+
+let view={scale:null,cx:0,cy:0,panX:0,panY:0,auto:true,drag:false,lastX:0,lastY:0,moved:false};
+function getViewTransform(W,H,pts){
+ const minx=Math.min(...pts.map(p=>p.x)),maxx=Math.max(...pts.map(p=>p.x)),miny=Math.min(...pts.map(p=>p.y)),maxy=Math.max(...pts.map(p=>p.y));
+ const sx=Math.max(maxx-minx,1),sy=Math.max(maxy-miny,1),base=Math.min((W-120)/sy,(H-120)/sx);
+ if(view.auto||view.scale===null){view.scale=base;view.cx=(minx+maxx)/2;view.cy=(miny+maxy)/2;view.panX=0;view.panY=0;view.auto=false;}
+ return {px:y=>W/2+(y-view.cy)*view.scale+view.panX,py:x=>H/2-(x-view.cx)*view.scale+view.panY,base};
+}
+// =========================
+// Surface / contour calculation
+// =========================
+let surfaceState={triangles:[],contours:[],points:[],built:false};
+function surfacePoints(){
+  return FP.filter(p=>p&&p.valid!==false&&p.visible!==false&&Number.isFinite(Number(p.x))&&Number.isFinite(Number(p.y))&&Number.isFinite(Number(p.h)))
+    .map((p,i)=>({x:Number(p.x),y:Number(p.y),h:Number(p.h),name:p.name,src:i}));
+}
+function circumcircle(a,b,c){
+  const ax=a.x,ay=a.y,bx=b.x,by=b.y,cx=c.x,cy=c.y;
+  const d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));
+  if(Math.abs(d)<1e-12)return null;
+  const a2=ax*ax+ay*ay,b2=bx*bx+by*by,c2=cx*cx+cy*cy;
+  const ux=(a2*(by-cy)+b2*(cy-ay)+c2*(ay-by))/d;
+  const uy=(a2*(cx-bx)+b2*(ax-cx)+c2*(bx-ax))/d;
+  return {x:ux,y:uy,r2:(ux-ax)*(ux-ax)+(uy-ay)*(uy-ay)};
+}
+function delaunayTriangulate(points){
+  if(points.length<3)return [];
+  const pts=points.map(p=>({...p}));
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  pts.forEach(p=>{minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);});
+  const dx=maxX-minX,dy=maxY-minY,delta=Math.max(dx,dy)||1,midX=(minX+maxX)/2,midY=(minY+maxY)/2;
+  const base=pts.length;
+  pts.push({x:midX-20*delta,y:midY-10*delta,h:0,name:'__S1'});
+  pts.push({x:midX,y:midY+20*delta,h:0,name:'__S2'});
+  pts.push({x:midX+20*delta,y:midY-10*delta,h:0,name:'__S3'});
+  let tris=[{a:base,b:base+1,c:base+2,circ:circumcircle(pts[base],pts[base+1],pts[base+2])}];
+  for(let i=0;i<base;i++){
+    const p=pts[i],bad=[];
+    for(let t=0;t<tris.length;t++){
+      const cc=tris[t].circ;
+      if(cc && (p.x-cc.x)*(p.x-cc.x)+(p.y-cc.y)*(p.y-cc.y) <= cc.r2+1e-9)bad.push(t);
+    }
+    const edgeMap=new Map();
+    bad.forEach(ti=>{
+      const t=tris[ti]; [[t.a,t.b],[t.b,t.c],[t.c,t.a]].forEach(e=>{
+        const a=Math.min(e[0],e[1]),b=Math.max(e[0],e[1]),k=a+'_'+b;
+        edgeMap.set(k,(edgeMap.get(k)||0)+1);
+      });
+    });
+    const badSet=new Set(bad);tris=tris.filter((_,idx)=>!badSet.has(idx));
+    edgeMap.forEach((count,k)=>{
+      if(count!==1)return;
+      const [a,b]=k.split('_').map(Number),cc=circumcircle(pts[a],pts[b],pts[i]);
+      if(cc)tris.push({a,b,c:i,circ:cc});
+    });
+  }
+  return tris.filter(t=>t.a<base&&t.b<base&&t.c<base).map(t=>({a:pts[t.a],b:pts[t.b],c:pts[t.c]}));
+}
+function uniqueContourPoint(arr,p){
+  return arr.some(q=>Math.hypot(q.x-p.x,q.y-p.y)<1e-7);
+}
+function contourForTriangle(t,level){
+  const edges=[[t.a,t.b],[t.b,t.c],[t.c,t.a]],out=[];
+  edges.forEach(([p1,p2])=>{
+    const h1=p1.h,h2=p2.h,eps=1e-9;
+    if(Math.abs(h1-level)<eps && Math.abs(h2-level)<eps){
+      if(!uniqueContourPoint(out,p1))out.push({x:p1.x,y:p1.y});
+      if(!uniqueContourPoint(out,p2))out.push({x:p2.x,y:p2.y});
+    }else if((h1-level)*(h2-level)<0){
+      const t=(level-h1)/(h2-h1);const q={x:p1.x+(p2.x-p1.x)*t,y:p1.y+(p2.y-p1.y)*t};
+      if(!uniqueContourPoint(out,q))out.push(q);
+    }else if(Math.abs(h1-level)<eps){
+      const q={x:p1.x,y:p1.y};if(!uniqueContourPoint(out,q))out.push(q);
+    }else if(Math.abs(h2-level)<eps){
+      const q={x:p2.x,y:p2.y};if(!uniqueContourPoint(out,q))out.push(q);
+    }
+  });
+  if(out.length<2)return null;
+  let a=out[0],b=out[1],best=-1;
+  for(let i=0;i<out.length;i++)for(let j=i+1;j<out.length;j++){const d=(out[i].x-out[j].x)**2+(out[i].y-out[j].y)**2;if(d>best){best=d;a=out[i];b=out[j];}}
+  return {level,a,b,len:Math.sqrt(best)};
+}
+function makeContours(triangles,interval){
+  if(!triangles.length)return [];
+  let minH=Infinity,maxH=-Infinity;
+  triangles.forEach(t=>[t.a,t.b,t.c].forEach(p=>{minH=Math.min(minH,p.h);maxH=Math.max(maxH,p.h);}));
+  const start=Math.ceil((minH-1e-9)/interval)*interval,end=Math.floor((maxH+1e-9)/interval)*interval;
+  const out=[];
+  for(let level=start;level<=end+interval*1e-9;level+=interval){
+    triangles.forEach(t=>{const seg=contourForTriangle(t,level);if(seg)out.push(seg);});
+  }
+  return out;
+}
+function buildSurface(){
+  const pts=surfacePoints(),status=$('surfaceStatus');
+  if(pts.length<3){surfaceState={triangles:[],contours:[],points:pts,built:false};if(status)status.innerHTML='<span class="bad">✕ Контур байгуулахад дор хаяж 3 харагдаж байгаа фикст цэг хэрэгтэй.</span>';draw();return;}
+  let interval=Number(String($('contourInterval')?.value||'1').replace(',','.'));if(!Number.isFinite(interval)||interval<=0)interval=1;$('contourInterval').value=interval;
+  const triangles=delaunayTriangulate(pts),contours=makeContours(triangles,interval);
+  surfaceState={triangles,contours,points:pts,built:true};
+  if(status){
+    const levels=[...new Set(contours.map(c=>Number(c.level.toFixed(6))))];
+    status.innerHTML=`✓ ${pts.length} цэгээс <b>${triangles.length}</b> гурвалжин байгуулж, <b>${contours.length}</b> контурын хэсэг үүсгэлээ. Өндрийн интервал = <b>${num(interval,2)} м</b>. ${levels.length?`Контурын түвшин: <b>${levels.map(v=>num(v,2)).join(', ')}</b>`:'Контурын түвшин үүссэнгүй.'}`;
+  }
+  $('showMesh').checked=true;$('showContours').checked=true;draw();
+}
+function clearSurface(){surfaceState={triangles:[],contours:[],points:[],built:false};if($('showMesh'))$('showMesh').checked=false;if($('showContours'))$('showContours').checked=false;if($('surfaceStatus'))$('surfaceStatus').textContent='Контурын гадаргын тооцооллыг цэвэрлэлээ.';draw();}
+function drawSurface(g,px,py){
+  if(!surfaceState.built)return;
+  const showMesh=$('showMesh')?.checked,showContours=$('showContours')?.checked,showLabels=$('showContourLabels')?.checked;
+  if(showMesh){
+    g.save();g.strokeStyle='#98a2b3';g.lineWidth=0.75;g.globalAlpha=.7;
+    surfaceState.triangles.forEach(t=>{g.beginPath();g.moveTo(px(t.a.y),py(t.a.x));g.lineTo(px(t.b.y),py(t.b.x));g.lineTo(px(t.c.y),py(t.c.x));g.closePath();g.stroke();});g.restore();
+  }
+  if(showContours){
+    const groups=new Map();surfaceState.contours.forEach(s=>{const k=Number(s.level.toFixed(6));if(!groups.has(k))groups.set(k,[]);groups.get(k).push(s);});
+    groups.forEach((segs,level)=>{
+      g.save();g.strokeStyle='#b42318';g.lineWidth=1.8;g.globalAlpha=.9;
+      segs.forEach(s=>{g.beginPath();g.moveTo(px(s.a.y),py(s.a.x));g.lineTo(px(s.b.y),py(s.b.x));g.stroke();});
+      g.restore();
+      if(showLabels){
+        const best=segs.reduce((a,b)=>!a||b.len>a.len?b:a,null);if(best&&best.len>1){
+          const mx=(px(best.a.y)+px(best.b.y))/2,my=(py(best.a.x)+py(best.b.x))/2;
+          g.save();g.font='bold 10px Arial';g.textAlign='center';g.textBaseline='middle';const txt=num(level,0)+' m',w=g.measureText(txt).width+6;
+          g.fillStyle='white';g.globalAlpha=.85;g.fillRect(mx-w/2,my-7,w,14);g.globalAlpha=1;g.fillStyle='#7a271a';g.fillText(txt,mx,my);g.restore();
+        }
+      }
+    });
+  }
+}
+
+function draw(){
+ let c=$('canvas'),r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;let g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);let W=r.width,H=r.height;g.clearRect(0,0,W,H);
+ const pts=allPointObjects();
+ if(C.length<2&&pts.length<2){g.fillStyle='#98a2b3';g.font='14px Arial';g.textAlign='center';g.fillText('Тооцоолсны дараа сүлжээний зураг энд гарна',W/2,H/2);axisLabels(g,W,H);return}
+ let {px,py}=getViewTransform(W,H,pts);
+ let minx=Math.min(...pts.map(p=>p.x)),maxx=Math.max(...pts.map(p=>p.x)),miny=Math.min(...pts.map(p=>p.y)),maxy=Math.max(...pts.map(p=>p.y)),sx=Math.max(maxx-minx,1),sy=Math.max(maxy-miny,1);
+ g.strokeStyle='#e8edf2';g.lineWidth=1;let st=nice(Math.max(sx,sy)/7);for(let y=Math.floor(miny/st)*st;y<=maxy+st;y+=st){g.beginPath();g.moveTo(px(y),0);g.lineTo(px(y),H);g.stroke()}for(let x=Math.floor(minx/st)*st;x<=maxx+st;x+=st){g.beginPath();g.moveTo(0,py(x));g.lineTo(W,py(x));g.stroke()}
+ drawSurface(g,px,py);
+ g.strokeStyle='#344054';g.lineWidth=2.2;g.beginPath();C.forEach((p,i)=>i?g.lineTo(px(p.y),py(p.x)):g.moveTo(px(p.y),py(p.x)));if($('type').value==='closed'&&C.length)g.lineTo(px(C[0].y),py(C[0].x));g.stroke();
+ FP.forEach(p=>{const stp=getPointById(p.stationId);if(!stp||!p.valid||p.visible===false)return;g.save();g.setLineDash([6,5]);g.strokeStyle='#f59e0b';g.lineWidth=1.6;g.beginPath();g.moveTo(px(stp.y),py(stp.x));g.lineTo(px(p.y),py(p.x));g.stroke();g.restore();});
+ C.forEach(p=>{g.fillStyle='#2864df';g.beginPath();g.arc(px(p.y),py(p.x),5.5,0,7);g.fill();g.fillStyle='#172033';g.font='bold 12px Arial';g.textAlign='left';g.fillText(p.name,px(p.y)+9,py(p.x)-8);if(showC){g.fillStyle='#667085';g.font='10px Arial';g.fillText(`X ${p.x.toFixed(2)} Y ${p.y.toFixed(2)} H ${p.h.toFixed(2)}`,px(p.y)+9,py(p.x)+8);}});
+ FP.forEach(p=>{if(!p.valid||p.visible===false)return;g.fillStyle='#f59e0b';g.beginPath();g.arc(px(p.y),py(p.x),6.5,0,Math.PI*2);g.fill();g.strokeStyle='#92400e';g.lineWidth=1.5;g.stroke();g.fillStyle='#92400e';g.font='bold 12px Arial';g.textAlign='left';g.fillText(p.name,px(p.y)+10,py(p.x)-9);if(showC){g.fillStyle='#7c2d12';g.font='10px Arial';g.fillText(`X ${p.x.toFixed(2)} Y ${p.y.toFixed(2)} H ${p.h.toFixed(2)}`,px(p.y)+10,py(p.x)+8);}});
+ if(selectedPointRef&&selectedPointRef.valid!==false){const sp=selectedPointRef;g.strokeStyle='#f59e0b';g.lineWidth=3;g.beginPath();g.arc(px(sp.y),py(sp.x),10,0,Math.PI*2);g.stroke();}
+ if(showA){let openNow=$('type').value==='open';g.fillStyle='#175cd3';g.font='bold 11px Arial';g.textAlign='center';L.forEach((l,i)=>{let a=C[i],b=openNow?C[i+1]:C[(i+1)%N];if(!a||!b)return;g.fillText(fd(l.az),(px(a.y)+px(b.y))/2,(py(a.x)+py(b.x))/2-8);});}
+ axisLabels(g,W,H);
+}
+function fit(){view.auto=true;view.scale=null;view.panX=0;view.panY=0;draw();}
+function zoom(v){const c=$('canvas'),r=c.getBoundingClientRect();zoomAt(r.width/2,r.height/2,v);}
+function zoomAt(mx,my,v){const c=$('canvas'),r=c.getBoundingClientRect(),pts=allPointObjects();if(!pts.length)return;getViewTransform(r.width,r.height,pts);const old=view.scale;const y=view.cy+(mx-r.width/2-view.panX)/old;const x=view.cx-(my-r.height/2-view.panY)/old;view.scale=Math.max(0.000001,Math.min(old*v,old*1000));view.panX=mx-r.width/2-(y-view.cy)*view.scale;view.panY=my-r.height/2+(x-view.cx)*view.scale;draw();}
+function canvasWheel(e){e.preventDefault();const r=$('canvas').getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,e.deltaY<0?1.18:.8474576271);}
+function canvasDown(e){view.drag=true;view.lastX=e.clientX;view.lastY=e.clientY;view.moved=false;}
+function canvasMove(e){if(!view.drag)return;const dx=e.clientX-view.lastX,dy=e.clientY-view.lastY;if(Math.abs(dx)+Math.abs(dy)>2)view.moved=true;view.panX+=dx;view.panY+=dy;view.lastX=e.clientX;view.lastY=e.clientY;draw();}
+function canvasUp(e){if(view.drag&&!view.moved)onNetworkClick(e);view.drag=false;}
+function azToggle(){showA=!showA;draw()}function coToggle(){showC=!showC;draw()}
+function csv(){
+ if(!L.length)return alert('Эхлээд тооцоолно уу.');
+ let s='Шугам,Азимут,D_m,Засварласан_DeltaX_m,Засварласан_DeltaY_m,Засварласан_DeltaH_m\\n';L.forEach(l=>s+=`P${l.from}->P${l.to},${fd(l.az)},${l.D},${l.cdx},${l.cdy},${l.cdh}\\n`);s+='\\nЦэг,X_m,Y_m,H_m\\n';C.forEach(p=>s+=`${p.name},${p.x},${p.y},${p.h}\\n`);let b=new Blob(['\\ufeff'+s],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='GEONET_Bowditch_results.csv';a.click()
+}
+window.addEventListener('resize',()=>{view.auto=true;draw()});$('n').addEventListener('change',build);$('type').addEventListener('change',()=>build());$('canvas').addEventListener('mousedown',canvasDown);$('canvas').addEventListener('mousemove',canvasMove);$('canvas').addEventListener('mouseup',canvasUp);$('canvas').addEventListener('mouseleave',()=>{view.drag=false});$('canvas').addEventListener('wheel',canvasWheel,{passive:false});['showMesh','showContours','showContourLabels','contourInterval'].forEach(id=>$(id)?.addEventListener('change',()=>{if(surfaceState.built){if(id==='contourInterval')buildSurface();else draw();}}));toggleOpenUI();build(); refreshFixedSelectors(); renderFixedRows();
+</script>
+</body>
+</html>
